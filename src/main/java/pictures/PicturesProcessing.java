@@ -7,6 +7,8 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -25,12 +27,22 @@ public class PicturesProcessing {
 
     public void process(ForkJoinPool pool)
     {
-        Path source = Path.of("./src/main/resources/original");
+        URL res = getClass().getClassLoader().getResource("original");
+        Path source = null;
+        System.out.println(res);
+        try{
+            assert res != null;
+            source = Path.of(res.toURI());
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            System.exit(0);
+        }
+
         List<Path> files;
 
         try (Stream<Path> stream = Files.list(source)){
             files = stream.collect(Collectors.toList());
-
+            System.out.println(source.toUri());
             pool.submit(() -> {
                 pathStream = files.stream().parallel();
                 pathStream_to_nameAndOriginalPictureStream();
@@ -38,8 +50,9 @@ public class PicturesProcessing {
                 saveProcessed();
             }).get();
 
+
         } catch (IOException | InterruptedException | ExecutionException e) {
-            System.out.println("Couldn't load pictures.");
+            System.out.println("Couldn't load pictures from path "+source);
             System.exit(0);
         }
     }
