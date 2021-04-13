@@ -7,8 +7,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -25,19 +23,9 @@ public class PicturesProcessing {
     private Stream<Pair<String, BufferedImage>> origStream;
     private Stream<Pair<String, BufferedImage>> procStream;
 
-    public void process(ForkJoinPool pool)
+    public void process(ForkJoinPool pool,String str)
     {
-        URL res = getClass().getClassLoader().getResource("original");
-        Path source = null;
-        System.out.println(res);
-        try{
-            assert res != null;
-            source = Path.of(res.toURI());
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-            System.exit(0);
-        }
-
+        Path source = Path.of(str);
         List<Path> files;
 
         try (Stream<Path> stream = Files.list(source)){
@@ -52,8 +40,12 @@ public class PicturesProcessing {
 
 
         } catch (IOException | InterruptedException | ExecutionException e) {
+            e.printStackTrace();
             System.out.println("Couldn't load pictures from path "+source);
             System.exit(0);
+        }
+        finally {
+            pool.shutdown();
         }
     }
     public void pathStream_to_nameAndOriginalPictureStream()
@@ -113,14 +105,20 @@ public class PicturesProcessing {
     public void saveProcessed()
     {
         procStream.forEach(value -> {
-            Path path = Path.of("./src/main/resources/processed/"+value.getLeft());
-            File outputfile = new File(path.toString());
-            try {
-                ImageIO.write(value.getRight(), "jpg", outputfile);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
 
+            File theDir=new File("./results");
+
+            if (!theDir.exists()){
+                if(theDir.mkdirs()){
+                    Path path = Path.of("./results/"+value.getLeft());
+                    File outputfile = new File(path.toString());
+                    try {
+                        ImageIO.write(value.getRight(), "jpg", outputfile);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
         });
     }
 }

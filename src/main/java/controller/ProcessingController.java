@@ -12,12 +12,12 @@ public class ProcessingController {
     private static final int LIMIT = 10;
     private final PicturesProcessing proc;
 
-    public void initialize()
+    public void initialize(String path)
     {
         ForkJoinPool pool = new ForkJoinPool(LIMIT);
 
         long time = System.currentTimeMillis();
-        proc.process(pool);
+        proc.process(pool, path);
         System.out.println(System.currentTimeMillis() - time+" milisekund(y)");
 
         pool.shutdown();
