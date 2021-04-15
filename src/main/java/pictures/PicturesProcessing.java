@@ -106,18 +106,18 @@ public class PicturesProcessing {
     {
         procStream.forEach(value -> {
 
-            File theDir=new File("./results");
+            File theDir = new File("./results");
 
-            if (!theDir.exists()){
-                if(theDir.mkdirs()){
-                    Path path = Path.of("./results/"+value.getLeft());
-                    File outputfile = new File(path.toString());
-                    try {
-                        ImageIO.write(value.getRight(), "jpg", outputfile);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
+            if (!theDir.exists()) {
+                theDir.mkdirs();
+            }
+            Path path = Path.of("./results/" + value.getLeft());
+            File outputfile = new File(path.toString());
+            try {
+                ImageIO.write(value.getRight(), "jpg", outputfile);
+            } catch (IOException e) {
+                e.printStackTrace();
+
             }
         });
     }
